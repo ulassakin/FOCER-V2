@@ -9,7 +9,12 @@ query retrieves evidence from each exposure and selects its own top three
 branches inside every decoder layer. The model produces one coherent DETR
 prediction set without cross-exposure NMS.
 
-![FOCER-v2 architecture](assets/focer_v2_architecture.svg)
+![FOCER-v2 paper architecture](assets/focer_v2_paper_architecture.svg)
+
+Editable vector and export-ready versions: [SVG](assets/focer_v2_paper_architecture.svg),
+[PDF](assets/focer_v2_paper_architecture.pdf), and
+[PNG](assets/focer_v2_paper_architecture.png). The earlier compact technical
+diagram remains available at [assets/focer_v2_architecture.svg](assets/focer_v2_architecture.svg).
 
 ## Why object-conditioned routing?
 

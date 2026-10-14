@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1450" viewBox="0 0 2600 1450" role="img" aria-labelledby="title desc">
+  <title id="title">FOCER-v2 object-conditioned exposure routing architecture</title>
+  <desc id="desc">Paper-style comparison of the original fixed-exposure detector baseline with FOCER-v2 inference and its training-only teacher supervision.</desc>
+
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#202632"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7b4aa3"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#c96818"/>
+    </marker>
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#172033" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="hdr-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#071019"/>
+      <stop offset="0.42" stop-color="#315263"/>
+      <stop offset="0.72" stop-color="#e3ad4f"/>
+      <stop offset="1" stop-color="#fff3bd"/>
+    </linearGradient>
+    <linearGradient id="dark-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050b12"/>
+      <stop offset="1" stop-color="#304b56"/>
+    </linearGradient>
+    <linearGradient id="mid-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d3540"/>
+      <stop offset="0.7" stop-color="#c0924a"/>
+      <stop offset="1" stop-color="#f5d687"/>
+    </linearGradient>
+    <linearGradient id="bright-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#829da1"/>
+      <stop offset="0.55" stop-color="#f6e8bb"/>
+      <stop offset="1" stop-color="#fffdf4"/>
+    </linearGradient>
+
+    <!-- Compact, reusable street scene used as the HDR/exposure thumbnail. -->
+    <g id="scene-objects">
+      <rect x="0" y="0" width="184" height="116" rx="2" fill="inherit"/>
+      <rect x="0" y="73" width="184" height="43" fill="#263b43" opacity="0.76"/>
+      <path d="M0,88 L184,77 L184,116 L0,116 Z" fill="#536168" opacity="0.76"/>
+      <rect x="18" y="18" width="50" height="57" fill="#26323a" opacity="0.82"/>
+      <rect x="25" y="25" width="13" height="17" fill="#cfae60" opacity="0.78"/>
+      <rect x="44" y="25" width="13" height="17" fill="#8fb7b8" opacity="0.72"/>
+      <rect x="25" y="48" width="13" height="17" fill="#71959c" opacity="0.68"/>
+      <rect x="44" y="48" width="13" height="17" fill="#e6bb62" opacity="0.70"/>
+      <circle cx="116" cy="45" r="8" fill="#182326"/>
+      <path d="M108,55 Q116,50 124,55 L128,83 L121,83 L119,64 L116,83 L109,83 Z" fill="#182326"/>
+      <rect x="134" y="69" width="38" height="18" rx="5" fill="#1b2a31"/>
+      <circle cx="143" cy="89" r="5" fill="#11161a"/>
+      <circle cx="163" cy="89" r="5" fill="#11161a"/>
+      <path d="M146,69 L153,59 L165,59 L171,69 Z" fill="#334c56"/>
+      <rect x="84" y="11" width="3" height="65" fill="#1a2529"/>
+      <circle cx="85.5" cy="12" r="8" fill="#f5ce70" opacity="0.88"/>
+    </g>
+
+    <style>
+      .serif { font-family: "Liberation Serif", "Times New Roman", serif; fill: #172033; }
+      .panel-title { font-size: 31px; font-weight: 700; }
+      .section-title { font-size: 27px; font-weight: 700; }
+      .label { font-size: 24px; }
+      .small { font-size: 20px; }
+      .tiny { font-size: 17px; }
+      .bold { font-weight: 700; }
+      .italic { font-style: italic; }
+      .line { fill: none; stroke: #202632; stroke-width: 2.5; marker-end: url(#arrow); }
+      .line-thin { fill: none; stroke: #202632; stroke-width: 2; marker-end: url(#arrow); }
+      .line-purple { fill: none; stroke: #7b4aa3; stroke-width: 2.8; stroke-dasharray: 10 8; marker-end: url(#arrow-purple); }
+      .line-orange { fill: none; stroke: #c96818; stroke-width: 3; marker-end: url(#arrow-orange); }
+      .box { fill: #fff; stroke: #202632; stroke-width: 2.2; }
+      .frozen { fill: #dbe8f8; stroke: #365f91; stroke-width: 2.2; }
+      .exposure { fill: #e3f2d4; stroke: #5f8d32; stroke-width: 2.2; }
+      .router { fill: #fff0d5; stroke: #c96818; stroke-width: 3; }
+      .teacher { fill: #eee2f5; stroke: #7b4aa3; stroke-width: 2.3; }
+      .novel { fill: none; stroke: #c96818; stroke-width: 3.2; stroke-dasharray: 13 8; }
+      .training-region { fill: #fcf9fd; stroke: #7b4aa3; stroke-width: 2.3; stroke-dasharray: 11 8; }
+      .panel-rule { stroke: #9fa9b5; stroke-width: 1.6; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="2600" height="1450" fill="#ffffff"/>
+
+  <!-- Legend -->
+  <g class="serif" transform="translate(1560 25)">
+    <rect x="0" y="0" width="42" height="22" class="frozen"/>
+    <text x="53" y="18" class="small">Frozen official DETR</text>
+    <rect x="285" y="0" width="42" height="22" class="exposure"/>
+    <text x="338" y="18" class="small">Fixed exposure operation</text>
+    <rect x="650" y="0" width="42" height="22" class="router"/>
+    <text x="703" y="18" class="small">Trainable FOCER module</text>
+  </g>
+
+  <!-- ================================================================ -->
+  <!-- (a) Original paper baseline                                      -->
+  <!-- ================================================================ -->
+  <g class="serif">
+    <text x="55" y="78" class="panel-title">(a) Original paper: fixed-exposure late fusion</text>
+
+    <g transform="translate(80 118)" filter="url(#soft-shadow)">
+      <use href="#scene-objects" fill="url(#hdr-grad)"/>
+      <rect x="0" y="0" width="184" height="116" rx="2" fill="none" stroke="#172033" stroke-width="2"/>
+    </g>
+    <text x="172" y="265" class="label" text-anchor="middle">HDR image</text>
+
+    <path d="M275,176 H370" class="line"/>
+
+    <g transform="translate(390 102)">
+      <rect x="0" y="0" width="285" height="150" rx="8" class="exposure"/>
+      <text x="142" y="40" class="section-title" text-anchor="middle">15 fixed exposures</text>
+      <text x="142" y="78" class="label" text-anchor="middle">stops 0, 1, …, 14</text>
+      <path d="M38,119 C70,85 105,151 137,112 S205,87 246,112" fill="none" stroke="#5f8d32" stroke-width="3"/>
+    </g>
+
+    <path d="M686,176 H760" class="line"/>
+
+    <!-- representative exposure thumbnails -->
+    <g transform="translate(785 95) scale(.73)">
+      <use href="#scene-objects" fill="url(#dark-grad)"/>
+      <rect x="0" y="0" width="184" height="116" fill="#071019" opacity="0.32"/>
+      <rect x="0" y="0" width="184" height="116" fill="none" stroke="#46784c" stroke-width="3"/>
+    </g>
+    <g transform="translate(785 182) scale(.73)">
+      <use href="#scene-objects" fill="url(#mid-grad)"/>
+      <rect x="0" y="0" width="184" height="116" fill="none" stroke="#5e8cc1" stroke-width="3"/>
+    </g>
+    <text x="852" y="177" class="section-title" text-anchor="middle">⋮</text>
+    <text x="852" y="292" class="small" text-anchor="middle">tone-mapped views</text>
+
+    <path d="M930,138 H1040" class="line-thin"/>
+    <path d="M930,224 H1040" class="line-thin"/>
+
+    <g transform="translate(1060 102)">
+      <path d="M0,0 L120,28 L120,122 L0,150 Z" class="frozen"/>
+      <text x="60" y="66" class="label bold" text-anchor="middle">Detector</text>
+      <text x="60" y="96" class="small" text-anchor="middle">× 15</text>
+    </g>
+    <text x="1120" y="285" class="small" text-anchor="middle">shared weights</text>
+
+    <path d="M1190,176 H1305" class="line"/>
+
+    <g transform="translate(1330 98)">
+      <rect x="0" y="0" width="205" height="156" rx="7" class="box"/>
+      <text x="102" y="52" class="label bold" text-anchor="middle">15 detection</text>
+      <text x="102" y="83" class="label bold" text-anchor="middle">sets</text>
+      <g transform="translate(36 104)">
+        <rect x="0" y="0" width="24" height="28" fill="none" stroke="#d63d53" stroke-width="2"/>
+        <rect x="48" y="5" width="38" height="20" fill="none" stroke="#41a75f" stroke-width="2"/>
+        <rect x="110" y="1" width="24" height="27" fill="none" stroke="#477fd0" stroke-width="2"/>
+      </g>
+    </g>
+
+    <path d="M1546,176 H1655" class="line"/>
+
+    <g transform="translate(1680 118)">
+      <rect x="0" y="0" width="180" height="116" rx="6" class="box"/>
+      <text x="90" y="49" class="label bold" text-anchor="middle">NMS</text>
+      <text x="90" y="80" class="small" text-anchor="middle">late box fusion</text>
+    </g>
+
+    <path d="M1870,176 H1985" class="line"/>
+
+    <g transform="translate(2010 118)" filter="url(#soft-shadow)">
+      <use href="#scene-objects" fill="url(#mid-grad)"/>
+      <rect x="103" y="34" width="29" height="56" fill="none" stroke="#e63263" stroke-width="4"/>
+      <rect x="132" y="57" width="44" height="34" fill="none" stroke="#e63263" stroke-width="4"/>
+      <rect x="0" y="0" width="184" height="116" fill="none" stroke="#e63263" stroke-width="3"/>
+    </g>
+    <text x="2102" y="265" class="label" text-anchor="middle">final detections</text>
+
+    <g transform="translate(2240 106)">
+      <rect x="0" y="0" width="305" height="145" rx="8" fill="#f7f8fa" stroke="#73808e" stroke-width="1.8"/>
+      <text x="152" y="39" class="small bold" text-anchor="middle">One complete detection</text>
+      <text x="152" y="67" class="small bold" text-anchor="middle">pass per exposure</text>
+      <text x="152" y="105" class="small" text-anchor="middle">Information is combined only</text>
+      <text x="152" y="130" class="small" text-anchor="middle">after boxes are predicted.</text>
+    </g>
+  </g>
+
+  <line x1="50" y1="335" x2="2550" y2="335" class="panel-rule"/>
+
+  <!-- ================================================================ -->
+  <!-- (b) FOCER-v2 inference                                           -->
+  <!-- ================================================================ -->
+  <g class="serif">
+    <text x="55" y="385" class="panel-title">(b) FOCER-v2 inference: object-conditioned exposure routing</text>
+    <text x="835" y="385" class="small italic" fill="#a55214">Each object query chooses its own useful exposure evidence.</text>
+
+    <!-- HDR input -->
+    <g transform="translate(65 525)" filter="url(#soft-shadow)">
+      <use href="#scene-objects" fill="url(#hdr-grad)"/>
+      <rect x="0" y="0" width="184" height="116" fill="none" stroke="#172033" stroke-width="2"/>
+    </g>
+    <text x="157" y="680" class="label" text-anchor="middle">HDR image</text>
+
+    <path d="M260,583 H340" class="line"/>
+
+    <g transform="translate(360 490)">
+      <rect x="0" y="0" width="255" height="185" rx="8" class="exposure"/>
+      <text x="127" y="40" class="section-title" text-anchor="middle">Fixed radiance</text>
+      <text x="127" y="72" class="section-title" text-anchor="middle">scaling + gamma</text>
+      <text x="127" y="116" class="label" text-anchor="middle">15 views</text>
+      <text x="127" y="148" class="small" text-anchor="middle">stops 0, 1, …, 14</text>
+      <text x="127" y="174" class="tiny italic" text-anchor="middle">not learned; same as baseline</text>
+    </g>
+
+    <path d="M626,583 H704" class="line"/>
+
+    <!-- exposure stack -->
+    <g transform="translate(730 442)">
+      <g transform="translate(0 0)">
+        <use href="#scene-objects" fill="url(#dark-grad)"/>
+        <rect x="0" y="0" width="184" height="116" fill="#071019" opacity="0.35"/>
+        <rect x="0" y="0" width="184" height="116" fill="none" stroke="#46784c" stroke-width="3"/>
+        <text x="14" y="25" class="small bold" fill="#fff">s = 0</text>
+      </g>
+      <g transform="translate(0 130)">
+        <use href="#scene-objects" fill="url(#mid-grad)"/>
+        <rect x="0" y="0" width="184" height="116" fill="none" stroke="#5e8cc1" stroke-width="3"/>
+        <text x="14" y="25" class="small bold" fill="#fff">s = 7</text>
+      </g>
+      <text x="92" y="279" class="section-title" text-anchor="middle">⋮</text>
+      <g transform="translate(0 294)">
+        <use href="#scene-objects" fill="url(#bright-grad)"/>
+        <rect x="0" y="0" width="184" height="116" fill="#fff" opacity="0.13"/>
+        <rect x="0" y="0" width="184" height="116" fill="none" stroke="#e18d38" stroke-width="3"/>
+        <text x="14" y="25" class="small bold">s = 14</text>
+      </g>
+    </g>
+
+    <path d="M930,500 H1018" class="line-thin"/>
+    <path d="M930,630 H1018" class="line-thin"/>
+    <path d="M930,795 H1018" class="line-thin"/>
+
+    <!-- shared feature extractor -->
+    <g transform="translate(1040 463)">
+      <path d="M0,0 L185,28 L185,326 L0,354 Z" class="frozen"/>
+      <text x="92" y="98" class="section-title" text-anchor="middle">Shared</text>
+      <text x="92" y="132" class="section-title" text-anchor="middle">ResNet-50</text>
+      <text x="92" y="166" class="section-title" text-anchor="middle">+ DETR</text>
+      <text x="92" y="200" class="section-title" text-anchor="middle">encoder</text>
+      <line x1="25" y1="230" x2="160" y2="230" stroke="#365f91" stroke-width="1.5"/>
+      <text x="92" y="267" class="small bold" text-anchor="middle">frozen</text>
+      <text x="92" y="296" class="small" text-anchor="middle">weights shared</text>
+      <text x="92" y="322" class="small" text-anchor="middle">across views</text>
+    </g>
+
+    <path d="M1236,640 H1315" class="line"/>
+
+    <!-- 15 separate memories -->
+    <g transform="translate(1335 466)">
+      <rect x="22" y="20" width="175" height="286" rx="6" fill="#edf4fb" stroke="#6e91ba" stroke-width="1.8"/>
+      <rect x="11" y="10" width="175" height="286" rx="6" fill="#e6f0fa" stroke="#5c83b0" stroke-width="1.8"/>
+      <rect x="0" y="0" width="175" height="286" rx="6" class="frozen"/>
+      <text x="87" y="51" class="section-title" text-anchor="middle">15 encoded</text>
+      <text x="87" y="84" class="section-title" text-anchor="middle">memories</text>
+      <text x="87" y="126" class="small" text-anchor="middle">spatial feature</text>
+      <text x="87" y="152" class="small" text-anchor="middle">tokens remain</text>
+      <text x="87" y="178" class="small" text-anchor="middle">separate by stop</text>
+      <g transform="translate(27 208)">
+        <rect x="0" y="0" width="28" height="28" fill="#a9c6e5"/>
+        <rect x="34" y="0" width="28" height="28" fill="#8eb4db"/>
+        <rect x="68" y="0" width="28" height="28" fill="#bcd2e9"/>
+        <rect x="102" y="0" width="28" height="28" fill="#74a2d0"/>
+        <rect x="0" y="34" width="28" height="28" fill="#81a9d1"/>
+        <rect x="34" y="34" width="28" height="28" fill="#c8dcef"/>
+        <rect x="68" y="34" width="28" height="28" fill="#93b8db"/>
+        <rect x="102" y="34" width="28" height="28" fill="#a8c3df"/>
+      </g>
+    </g>
+
+    <path d="M1538,640 H1608" class="line"/>
+
+    <!-- Novel routed decoder -->
+    <g transform="translate(1625 420)">
+      <rect x="0" y="0" width="665" height="474" rx="11" class="novel"/>
+      <rect x="18" y="16" width="629" height="48" rx="7" fill="#fff6e9" stroke="#c96818" stroke-width="1.5"/>
+      <text x="332" y="49" class="section-title" text-anchor="middle" fill="#a55214">FOCER routed DETR decoder layer  × 6</text>
+
+      <!-- queries -->
+      <g transform="translate(35 89)">
+        <rect x="0" y="0" width="145" height="104" rx="7" class="box"/>
+        <text x="72" y="34" class="label bold" text-anchor="middle">100 object</text>
+        <text x="72" y="64" class="label bold" text-anchor="middle">queries</text>
+        <text x="72" y="91" class="tiny" text-anchor="middle">current states</text>
+      </g>
+      <path d="M180,141 H220" class="line-thin"/>
+
+      <g transform="translate(232 89)">
+        <rect x="0" y="0" width="170" height="104" rx="7" class="frozen"/>
+        <text x="85" y="34" class="label bold" text-anchor="middle">Query self-</text>
+        <text x="85" y="64" class="label bold" text-anchor="middle">attention</text>
+        <text x="85" y="91" class="tiny" text-anchor="middle">queries communicate</text>
+      </g>
+      <path d="M402,141 H444" class="line-thin"/>
+
+      <g transform="translate(457 89)">
+        <rect x="0" y="0" width="170" height="104" rx="7" class="frozen"/>
+        <text x="85" y="32" class="label bold" text-anchor="middle">Per-exposure</text>
+        <text x="85" y="62" class="label bold" text-anchor="middle">cross-attention</text>
+        <text x="85" y="89" class="tiny" text-anchor="middle">15 evidence vectors/query</text>
+      </g>
+
+      <!-- router signals -->
+      <g transform="translate(34 233)">
+        <rect x="0" y="0" width="264" height="198" rx="8" class="router"/>
+        <text x="132" y="35" class="label bold" text-anchor="middle">Exposure router</text>
+        <text x="20" y="73" class="small">1. current query state</text>
+        <text x="20" y="103" class="small">2. exposure evidence</text>
+        <text x="20" y="133" class="small">3. stop embedding</text>
+        <text x="20" y="163" class="small">4. local reliability</text>
+        <text x="132" y="190" class="tiny italic" text-anchor="middle">trainable: 1.25M parameters</text>
+      </g>
+      <path d="M542,193 C542,218 430,210 310,262" class="line-orange"/>
+
+      <!-- routing matrix -->
+      <g transform="translate(333 233)">
+        <rect x="0" y="0" width="137" height="198" rx="8" fill="#fffaf2" stroke="#c96818" stroke-width="2.2"/>
+        <text x="68" y="29" class="small bold" text-anchor="middle">per-query</text>
+        <text x="68" y="53" class="small bold" text-anchor="middle">Top-3</text>
+        <g transform="translate(25 72)">
+          <rect x="0" y="0" width="16" height="16" fill="#f4ba69"/><rect x="21" y="0" width="16" height="16" fill="#f9e2bd"/><rect x="42" y="0" width="16" height="16" fill="#f9e2bd"/><rect x="63" y="0" width="16" height="16" fill="#d76d20"/>
+          <rect x="0" y="22" width="16" height="16" fill="#f9e2bd"/><rect x="21" y="22" width="16" height="16" fill="#d76d20"/><rect x="42" y="22" width="16" height="16" fill="#efa64f"/><rect x="63" y="22" width="16" height="16" fill="#f9e2bd"/>
+          <rect x="0" y="44" width="16" height="16" fill="#d76d20"/><rect x="21" y="44" width="16" height="16" fill="#f9e2bd"/><rect x="42" y="44" width="16" height="16" fill="#f4ba69"/><rect x="63" y="44" width="16" height="16" fill="#f9e2bd"/>
+          <text x="88" y="38" class="section-title">…</text>
+        </g>
+        <text x="68" y="156" class="tiny" text-anchor="middle">different rows =</text>
+        <text x="68" y="178" class="tiny" text-anchor="middle">different objects</text>
+      </g>
+      <path d="M298,332 H325" class="line-orange"/>
+
+      <!-- weighted update -->
+      <g transform="translate(504 233)">
+        <rect x="0" y="0" width="123" height="198" rx="8" class="router"/>
+        <text x="61" y="40" class="small bold" text-anchor="middle">Weighted</text>
+        <text x="61" y="66" class="small bold" text-anchor="middle">evidence</text>
+        <text x="61" y="92" class="small bold" text-anchor="middle">update</text>
+        <circle cx="61" cy="133" r="25" fill="#fff" stroke="#c96818" stroke-width="2.5"/>
+        <text x="61" y="143" class="section-title" text-anchor="middle">+</text>
+        <text x="61" y="180" class="tiny" text-anchor="middle">refined query</text>
+      </g>
+      <path d="M470,332 H496" class="line-orange"/>
+    </g>
+
+    <path d="M2298,658 H2360" class="line"/>
+
+    <g transform="translate(2375 514)">
+      <path d="M0,0 L145,24 L145,188 L0,212 Z" class="frozen"/>
+      <text x="72" y="70" class="label bold" text-anchor="middle">Frozen</text>
+      <text x="72" y="100" class="label bold" text-anchor="middle">class +</text>
+      <text x="72" y="130" class="label bold" text-anchor="middle">box heads</text>
+      <text x="72" y="170" class="small" text-anchor="middle">one coherent</text>
+      <text x="72" y="194" class="small" text-anchor="middle">prediction set</text>
+    </g>
+
+    <g transform="translate(2350 766)">
+      <rect x="0" y="0" width="190" height="104" rx="7" fill="#f7f8fa" stroke="#73808e" stroke-width="1.7"/>
+      <text x="95" y="35" class="small bold" text-anchor="middle">No cross-exposure</text>
+      <text x="95" y="62" class="small bold" text-anchor="middle">NMS</text>
+      <text x="95" y="88" class="tiny" text-anchor="middle">evidence fused inside queries</text>
+    </g>
+  </g>
+
+  <line x1="50" y1="930" x2="2550" y2="930" class="panel-rule"/>
+
+  <!-- ================================================================ -->
+  <!-- (c) Training-only supervision                                    -->
+  <!-- ================================================================ -->
+  <g class="serif">
+    <text x="55" y="980" class="panel-title">(c) Training-only guidance for learning meaningful routes</text>
+
+    <rect x="55" y="1005" width="2490" height="365" rx="10" class="training-region"/>
+    <text x="90" y="1042" class="small bold" fill="#6b378e">TRAINING ONLY - the teacher and labels are removed at inference</text>
+
+    <g transform="translate(92 1080)">
+      <rect x="0" y="0" width="230" height="130" rx="8" class="teacher"/>
+      <text x="115" y="44" class="label bold" text-anchor="middle">Ground-truth</text>
+      <text x="115" y="76" class="label bold" text-anchor="middle">boxes + labels</text>
+      <text x="115" y="109" class="tiny" text-anchor="middle">training split only</text>
+    </g>
+
+    <path d="M334,1145 H425" class="line-purple"/>
+
+    <g transform="translate(450 1068)">
+      <rect x="0" y="0" width="275" height="155" rx="8" class="teacher"/>
+      <text x="137" y="42" class="label bold" text-anchor="middle">Frozen DETR teacher</text>
+      <text x="137" y="76" class="small" text-anchor="middle">scores each labeled object</text>
+      <text x="137" y="104" class="small" text-anchor="middle">under all 15 fixed exposures</text>
+      <text x="137" y="136" class="tiny italic" text-anchor="middle">guidance only; never deployed</text>
+    </g>
+
+    <path d="M736,1145 H827" class="line-purple"/>
+
+    <g transform="translate(850 1068)">
+      <rect x="0" y="0" width="270" height="155" rx="8" class="teacher"/>
+      <text x="135" y="42" class="label bold" text-anchor="middle">Per-object exposure</text>
+      <text x="135" y="74" class="label bold" text-anchor="middle">utility</text>
+      <text x="135" y="108" class="small" text-anchor="middle">Which stops help this object?</text>
+      <text x="135" y="136" class="tiny" text-anchor="middle">converted to a soft target</text>
+    </g>
+
+    <path d="M1131,1145 H1222" class="line-purple"/>
+
+    <g transform="translate(1245 1068)">
+      <rect x="0" y="0" width="270" height="155" rx="8" class="teacher"/>
+      <text x="135" y="44" class="label bold" text-anchor="middle">Routing supervision</text>
+      <text x="135" y="82" class="small" text-anchor="middle">teacher loss aligns each</text>
+      <text x="135" y="110" class="small" text-anchor="middle">query's exposure preference</text>
+      <text x="135" y="138" class="tiny" text-anchor="middle">with useful detector evidence</text>
+    </g>
+
+    <path d="M1526,1145 C1650,1145 1645,1090 1775,1090" class="line-purple"/>
+    <text x="1642" y="1123" class="tiny bold" fill="#6b378e" text-anchor="middle">teaches the router</text>
+
+    <g transform="translate(1795 1050)">
+      <rect x="0" y="0" width="300" height="95" rx="8" class="router"/>
+      <text x="150" y="39" class="label bold" text-anchor="middle">Trainable FOCER router</text>
+      <text x="150" y="70" class="small" text-anchor="middle">inside all 6 decoder layers</text>
+    </g>
+
+    <g transform="translate(1795 1212)">
+      <rect x="0" y="0" width="300" height="95" rx="8" fill="#f1f5fa" stroke="#365f91" stroke-width="2"/>
+      <text x="150" y="39" class="label bold" text-anchor="middle">DETR detection losses</text>
+      <text x="150" y="70" class="small" text-anchor="middle">class + box + GIoU</text>
+    </g>
+    <path d="M1945,1206 V1153" class="line"/>
+
+    <path d="M2107,1260 H2193" class="line-thin"/>
+    <g transform="translate(2215 1195)">
+      <rect x="0" y="0" width="285" height="130" rx="8" fill="#f7f8fa" stroke="#73808e" stroke-width="1.8"/>
+      <text x="142" y="37" class="small bold" text-anchor="middle">What is optimized?</text>
+      <text x="142" y="71" class="small" text-anchor="middle">Only the added routing modules</text>
+      <text x="142" y="98" class="small" text-anchor="middle">and their query updates</text>
+      <text x="142" y="120" class="tiny italic" text-anchor="middle">official DETR remains frozen</text>
+    </g>
+
+    <text x="92" y="1337" class="small italic" fill="#6b378e">The teacher supplies exposure-selection knowledge; ordinary detection losses preserve the end task.</text>
+  </g>
+
+  <!-- Bottom take-away strip -->
+  <g class="serif">
+    <rect x="55" y="1390" width="2490" height="42" rx="6" fill="#fff5e8" stroke="#c96818" stroke-width="1.8"/>
+    <text x="1300" y="1419" class="small bold" text-anchor="middle" fill="#9d4a10">Core difference: the baseline fuses predicted boxes; FOCER-v2 lets each object query route and fuse exposure evidence before making one prediction.</text>
+  </g>
+</svg>
