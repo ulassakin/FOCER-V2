@@ -1,0 +1,393 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="1450" viewBox="0 0 3000 1450">
+  <defs>
+    <style>
+      .title { font: 700 54px 'DejaVu Sans', sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 25px 'DejaVu Sans', sans-serif; fill: #475569; }
+      .section { font: 700 31px 'DejaVu Sans', sans-serif; fill: #0f172a; }
+      .head { font: 700 28px 'DejaVu Sans', sans-serif; fill: #0f172a; }
+      .body { font: 400 23px 'DejaVu Sans', sans-serif; fill: #1e293b; }
+      .small { font: 400 20px 'DejaVu Sans', sans-serif; fill: #334155; }
+      .tiny { font: 400 17px 'DejaVu Sans', sans-serif; fill: #475569; }
+      .math { font: italic 25px 'DejaVu Serif', serif; fill: #0f172a; }
+      .mathsmall { font: italic 21px 'DejaVu Serif', serif; fill: #0f172a; }
+      .whitehead { font: 700 25px 'DejaVu Sans', sans-serif; fill: #ffffff; }
+      .mono { font: 500 19px 'DejaVu Sans Mono', monospace; fill: #334155; }
+      .box { stroke-width: 3; }
+      .arrow { fill: none; stroke: #334155; stroke-width: 5; marker-end: url(#arrow); }
+      .thin-arrow { fill: none; stroke: #64748b; stroke-width: 3.5; marker-end: url(#arrowSmall); }
+      .train-arrow { fill: none; stroke: #9333ea; stroke-width: 5; stroke-dasharray: 14 10; marker-end: url(#arrowPurple); }
+    </style>
+
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowSmall" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#9333ea"/>
+    </marker>
+
+    <linearGradient id="hdrGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset="0.45" stop-color="#334155"/>
+      <stop offset="0.72" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#fff7ed"/>
+    </linearGradient>
+    <linearGradient id="exposureDark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="exposureMid" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#172554"/>
+      <stop offset="0.55" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <linearGradient id="exposureBright" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="0.35" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background and title -->
+  <rect width="3000" height="1450" fill="#ffffff"/>
+  <text x="1500" y="70" text-anchor="middle" class="title">FOCER-v2: Factorized Object-Conditioned Exposure Routing</text>
+  <text x="1500" y="112" text-anchor="middle" class="subtitle">Fixed exposure coverage · exposure-separated query evidence · per-object sparse routing · one DETR prediction set</text>
+
+  <!-- Legend -->
+  <g transform="translate(770,138)">
+    <rect x="0" y="0" width="40" height="27" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="52" y="21" class="small">Frozen pretrained component</text>
+    <rect x="370" y="0" width="40" height="27" rx="6" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+    <text x="422" y="21" class="small">Trainable routing component</text>
+    <rect x="780" y="0" width="40" height="27" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="832" y="21" class="small">Fixed/non-learned exposure prior</text>
+    <line x1="1255" y1="14" x2="1315" y2="14" stroke="#9333ea" stroke-width="4" stroke-dasharray="12 8"/>
+    <text x="1330" y="21" class="small">Training-only supervision</text>
+  </g>
+
+  <!-- INFERENCE LANE -->
+  <rect x="35" y="190" width="2930" height="660" rx="28" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+  <rect x="35" y="190" width="225" height="48" rx="22" fill="#0f172a"/>
+  <text x="147" y="222" text-anchor="middle" class="whitehead">INFERENCE</text>
+
+  <!-- HDR input -->
+  <g>
+    <rect x="70" y="330" width="210" height="330" rx="22" fill="#ecfdf5" stroke="#16a34a" class="box"/>
+    <text x="175" y="372" text-anchor="middle" class="head">HDR Image</text>
+    <rect x="100" y="405" width="150" height="150" rx="12" fill="url(#hdrGradient)" stroke="#15803d" stroke-width="2"/>
+    <circle cx="205" cy="450" r="31" fill="#fef3c7" opacity="0.92"/>
+    <rect x="115" y="500" width="45" height="35" fill="#020617" opacity="0.9"/>
+    <rect x="165" y="478" width="58" height="57" fill="#1e293b" opacity="0.9"/>
+    <text x="175" y="594" text-anchor="middle" class="math">I<tspan baseline-shift="sub" font-size="18">HDR</tspan></text>
+    <text x="175" y="628" text-anchor="middle" class="small">normalized radiance</text>
+  </g>
+
+  <path d="M280 495 H325" class="arrow"/>
+
+  <!-- Fixed exposure renderer -->
+  <g>
+    <rect x="335" y="270" width="400" height="450" rx="22" fill="#ecfdf5" stroke="#16a34a" class="box"/>
+    <text x="535" y="312" text-anchor="middle" class="head">Fixed Exposure Rendering</text>
+    <text x="535" y="349" text-anchor="middle" class="body">s = 0, 1, …, 14</text>
+    <text x="535" y="391" text-anchor="middle" class="mathsmall">I<tspan baseline-shift="sub" font-size="15">s</tspan> = clip(I<tspan baseline-shift="sub" font-size="15">HDR</tspan> · 2<tspan baseline-shift="super" font-size="15">s</tspan>, 0, 1)<tspan baseline-shift="super" font-size="15">1/2.2</tspan></text>
+
+    <!-- exposure stack -->
+    <rect x="380" y="438" width="94" height="128" rx="9" fill="url(#exposureDark)" stroke="#14532d" stroke-width="2"/>
+    <rect x="402" y="426" width="94" height="128" rx="9" fill="#172554" opacity="0.58" stroke="#14532d" stroke-width="2"/>
+    <rect x="424" y="414" width="94" height="128" rx="9" fill="#334155" opacity="0.58" stroke="#14532d" stroke-width="2"/>
+    <text x="449" y="598" text-anchor="middle" class="small">s = 0</text>
+    <text x="449" y="624" text-anchor="middle" class="tiny">dark</text>
+
+    <text x="535" y="500" text-anchor="middle" class="head">···</text>
+
+    <rect x="555" y="414" width="94" height="128" rx="9" fill="url(#exposureMid)" stroke="#14532d" stroke-width="2"/>
+    <text x="588" y="598" text-anchor="middle" class="small">s = 7</text>
+    <text x="588" y="624" text-anchor="middle" class="tiny">balanced</text>
+
+    <rect x="607" y="438" width="94" height="128" rx="9" fill="url(#exposureBright)" stroke="#14532d" stroke-width="2"/>
+    <rect x="627" y="426" width="94" height="128" rx="9" fill="#ffffff" opacity="0.65" stroke="#14532d" stroke-width="2"/>
+    <text x="680" y="598" text-anchor="middle" class="small">s = 14</text>
+    <text x="680" y="622" text-anchor="middle" class="tiny">bright</text>
+    <text x="680" y="643" text-anchor="middle" class="tiny">clipped</text>
+
+    <text x="535" y="679" text-anchor="middle" class="small">15 immutable branches</text>
+  </g>
+
+  <path d="M735 495 H780" class="arrow"/>
+
+  <!-- The same fixed rendered branches are reused when building teacher targets. -->
+  <path d="M535 720 V1008" class="thin-arrow"/>
+  <rect x="412" y="893" width="246" height="39" rx="9" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="535" y="920" text-anchor="middle" class="tiny" fill="#166534">same fixed rendered branches</text>
+
+  <!-- Frozen shared feature extractor -->
+  <g>
+    <rect x="790" y="330" width="290" height="330" rx="22" fill="#dbeafe" stroke="#2563eb" class="box"/>
+    <text x="935" y="378" text-anchor="middle" class="head">Shared Frozen</text>
+    <text x="935" y="414" text-anchor="middle" class="head">ResNet-50 +</text>
+    <text x="935" y="450" text-anchor="middle" class="head">DETR Encoder</text>
+    <text x="935" y="506" text-anchor="middle" font-family="DejaVu Sans" font-size="46" fill="#2563eb">❄  🔒</text>
+    <text x="935" y="558" text-anchor="middle" class="small">same weights for all</text>
+    <text x="935" y="587" text-anchor="middle" class="small">15 exposures</text>
+    <text x="935" y="628" text-anchor="middle" class="tiny">No cross-exposure mixing</text>
+    <text x="935" y="651" text-anchor="middle" class="tiny">inside the encoder</text>
+  </g>
+
+  <path d="M1080 495 H1124" class="arrow"/>
+
+  <!-- Separate memories -->
+  <g>
+    <text x="1162" y="305" text-anchor="middle" class="small">Separate memories</text>
+    <rect x="1128" y="343" width="80" height="36" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <rect x="1136" y="383" width="80" height="36" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <rect x="1144" y="423" width="80" height="36" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <text x="1170" y="487" text-anchor="middle" class="head">⋮</text>
+    <rect x="1152" y="520" width="80" height="36" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <rect x="1160" y="560" width="80" height="36" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <rect x="1168" y="600" width="80" height="36" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <text x="1168" y="677" text-anchor="middle" class="mathsmall">M<tspan baseline-shift="sub" font-size="15">0</tspan> … M<tspan baseline-shift="sub" font-size="15">14</tspan></text>
+  </g>
+
+  <path d="M1248 495 H1282" class="arrow"/>
+
+  <!-- Main routing decoder -->
+  <g>
+    <rect x="1290" y="235" width="850" height="520" rx="24" fill="#fff7ed" stroke="#ea580c" stroke-width="4"/>
+    <rect x="1290" y="235" width="850" height="58" rx="22" fill="#ea580c"/>
+    <text x="1715" y="275" text-anchor="middle" class="whitehead">6× FACTORIZED ROUTING DECODER LAYER</text>
+
+    <!-- queries -->
+    <g>
+      <rect x="1332" y="311" width="172" height="77" rx="13" fill="#f8fafc" stroke="#64748b" stroke-width="2.5"/>
+      <text x="1418" y="341" text-anchor="middle" class="tiny">100 frozen DETR</text>
+      <text x="1418" y="369" text-anchor="middle" class="small" font-weight="700">Object Queries</text>
+      <circle cx="1360" cy="415" r="15" fill="#2563eb"/>
+      <circle cx="1400" cy="415" r="15" fill="#16a34a"/>
+      <circle cx="1440" cy="415" r="15" fill="#ea580c"/>
+      <circle cx="1480" cy="415" r="15" fill="#9333ea"/>
+      <text x="1418" y="458" text-anchor="middle" class="tiny">q = 1 … 100</text>
+    </g>
+
+    <path d="M1505 405 H1531" class="thin-arrow"/>
+
+    <!-- self attention -->
+    <g>
+      <rect x="1540" y="315" width="180" height="155" rx="16" fill="#ffedd5" stroke="#fb923c" stroke-width="2.5"/>
+      <circle cx="1570" cy="343" r="18" fill="#ea580c"/>
+      <text x="1570" y="350" text-anchor="middle" font-family="DejaVu Sans" font-size="20" font-weight="700" fill="#fff">1</text>
+      <text x="1630" y="347" text-anchor="middle" class="small">Query</text>
+      <text x="1630" y="375" text-anchor="middle" class="small">Self-Attention</text>
+      <path d="M1582 418 C1600 391 1660 391 1678 418" fill="none" stroke="#ea580c" stroke-width="3"/>
+      <path d="M1582 418 C1600 450 1660 450 1678 418" fill="none" stroke="#ea580c" stroke-width="3"/>
+      <circle cx="1582" cy="418" r="9" fill="#2563eb"/>
+      <circle cx="1630" cy="418" r="9" fill="#16a34a"/>
+      <circle cx="1678" cy="418" r="9" fill="#9333ea"/>
+    </g>
+
+    <path d="M1720 395 H1747" class="thin-arrow"/>
+
+    <!-- cross attention -->
+    <g>
+      <rect x="1755" y="315" width="205" height="155" rx="16" fill="#f1f5f9" stroke="#64748b" stroke-width="2.5"/>
+      <circle cx="1781" cy="343" r="18" fill="#64748b"/>
+      <text x="1781" y="350" text-anchor="middle" font-family="DejaVu Sans" font-size="20" font-weight="700" fill="#fff">2</text>
+      <text x="1871" y="342" text-anchor="middle" class="tiny" font-weight="700">Exposure-Separated</text>
+      <text x="1871" y="369" text-anchor="middle" class="small">Cross-Attention</text>
+      <rect x="1784" y="400" width="42" height="38" rx="5" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>
+      <rect x="1840" y="400" width="42" height="38" rx="5" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>
+      <rect x="1896" y="400" width="42" height="38" rx="5" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>
+      <text x="1860" y="459" text-anchor="middle" class="mathsmall">e<tspan baseline-shift="sub" font-size="14">q,0</tspan> … e<tspan baseline-shift="sub" font-size="14">q,14</tspan></text>
+    </g>
+
+    <path d="M1960 395 H1987" class="thin-arrow"/>
+
+    <!-- router -->
+    <g>
+      <rect x="1995" y="315" width="120" height="155" rx="16" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/>
+      <circle cx="2025" cy="343" r="18" fill="#ea580c"/>
+      <text x="2025" y="350" text-anchor="middle" font-family="DejaVu Sans" font-size="20" font-weight="700" fill="#fff">3</text>
+      <text x="2055" y="381" text-anchor="middle" class="small">Object-</text>
+      <text x="2055" y="407" text-anchor="middle" class="small">Conditioned</text>
+      <text x="2055" y="433" text-anchor="middle" class="small">Router</text>
+    </g>
+
+    <!-- router inputs strip -->
+    <rect x="1332" y="492" width="783" height="102" rx="14" fill="#ffffff" stroke="#fdba74" stroke-width="2"/>
+    <text x="1723" y="530" text-anchor="middle" class="small">Router inputs for every query–exposure pair</text>
+    <text x="1723" y="559" text-anchor="middle" class="small">query state + exposure evidence + stop embedding</text>
+    <text x="1723" y="584" text-anchor="middle" class="small">+ query-local radiometric reliability</text>
+
+    <rect x="1332" y="602" width="353" height="112" rx="14" fill="#ffffff" stroke="#fdba74" stroke-width="2"/>
+    <text x="1508" y="637" text-anchor="middle" class="mathsmall">p<tspan baseline-shift="sub" font-size="14">q</tspan> = softmax(route logits / τ)</text>
+    <text x="1508" y="674" text-anchor="middle" class="small">dense probabilities for learning</text>
+    <text x="1508" y="704" text-anchor="middle" class="tiny">straight-through sparse forward path</text>
+
+    <!-- per query top-3 -->
+    <rect x="1710" y="602" width="405" height="112" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="2.5"/>
+    <text x="1912" y="631" text-anchor="middle" class="small">Per-query Top-3 (different routes)</text>
+    <text x="1730" y="660" class="tiny">q₁</text>
+    <text x="1730" y="692" class="tiny">q₂</text>
+    <!-- q1 bars -->
+    <g transform="translate(1765,641)">
+      <rect x="0" y="13" width="15" height="17" fill="#cbd5e1"/><rect x="19" y="10" width="15" height="20" fill="#cbd5e1"/>
+      <rect x="38" y="0" width="15" height="30" fill="#ea580c"/><rect x="57" y="12" width="15" height="18" fill="#cbd5e1"/>
+      <rect x="76" y="9" width="15" height="21" fill="#cbd5e1"/><rect x="95" y="3" width="15" height="27" fill="#16a34a"/>
+      <rect x="114" y="11" width="15" height="19" fill="#cbd5e1"/><rect x="133" y="12" width="15" height="18" fill="#cbd5e1"/>
+      <rect x="152" y="10" width="15" height="20" fill="#cbd5e1"/><rect x="171" y="8" width="15" height="22" fill="#cbd5e1"/>
+      <rect x="190" y="5" width="15" height="25" fill="#2563eb"/><rect x="209" y="12" width="15" height="18" fill="#cbd5e1"/>
+      <rect x="228" y="11" width="15" height="19" fill="#cbd5e1"/><rect x="247" y="13" width="15" height="17" fill="#cbd5e1"/>
+      <rect x="266" y="12" width="15" height="18" fill="#cbd5e1"/>
+    </g>
+    <!-- q2 bars -->
+    <g transform="translate(1765,673)">
+      <rect x="0" y="12" width="15" height="18" fill="#cbd5e1"/><rect x="19" y="5" width="15" height="25" fill="#2563eb"/>
+      <rect x="38" y="11" width="15" height="19" fill="#cbd5e1"/><rect x="57" y="12" width="15" height="18" fill="#cbd5e1"/>
+      <rect x="76" y="10" width="15" height="20" fill="#cbd5e1"/><rect x="95" y="11" width="15" height="19" fill="#cbd5e1"/>
+      <rect x="114" y="3" width="15" height="27" fill="#16a34a"/><rect x="133" y="12" width="15" height="18" fill="#cbd5e1"/>
+      <rect x="152" y="11" width="15" height="19" fill="#cbd5e1"/><rect x="171" y="12" width="15" height="18" fill="#cbd5e1"/>
+      <rect x="190" y="10" width="15" height="20" fill="#cbd5e1"/><rect x="209" y="11" width="15" height="19" fill="#cbd5e1"/>
+      <rect x="228" y="9" width="15" height="21" fill="#cbd5e1"/><rect x="247" y="0" width="15" height="30" fill="#9333ea"/>
+      <rect x="266" y="12" width="15" height="18" fill="#cbd5e1"/>
+    </g>
+  </g>
+
+  <path d="M2140 495 H2175" class="arrow"/>
+
+  <!-- weighted evidence -->
+  <g>
+    <rect x="2185" y="330" width="195" height="330" rx="22" fill="#f1f5f9" stroke="#64748b" class="box"/>
+    <text x="2282" y="376" text-anchor="middle" class="head">Weighted</text>
+    <text x="2282" y="411" text-anchor="middle" class="head">Query Evidence</text>
+    <text x="2282" y="468" text-anchor="middle" class="mathsmall">z<tspan baseline-shift="sub" font-size="14">q</tspan> = Σ<tspan baseline-shift="sub" font-size="14">s</tspan> p<tspan baseline-shift="sub" font-size="14">q,s</tspan> e<tspan baseline-shift="sub" font-size="14">q,s</tspan></text>
+    <rect x="2234" y="508" width="96" height="28" rx="5" fill="#2563eb" opacity="0.9"/>
+    <rect x="2234" y="550" width="96" height="28" rx="5" fill="#16a34a" opacity="0.9"/>
+    <rect x="2234" y="592" width="96" height="28" rx="5" fill="#ea580c" opacity="0.9"/>
+    <text x="2282" y="641" text-anchor="middle" class="tiny">one vector per query</text>
+  </g>
+
+  <path d="M2380 495 H2415" class="arrow"/>
+
+  <!-- frozen heads -->
+  <g>
+    <rect x="2425" y="350" width="210" height="290" rx="22" fill="#dbeafe" stroke="#2563eb" class="box"/>
+    <text x="2530" y="397" text-anchor="middle" class="head">Frozen DETR</text>
+    <text x="2530" y="433" text-anchor="middle" class="head">Class + Box</text>
+    <text x="2530" y="469" text-anchor="middle" class="head">Heads</text>
+    <text x="2530" y="531" text-anchor="middle" font-family="DejaVu Sans" font-size="46" fill="#2563eb">❄  🔒</text>
+    <text x="2530" y="583" text-anchor="middle" class="small">92 class logits</text>
+    <text x="2530" y="613" text-anchor="middle" class="small">+ 4 box values</text>
+  </g>
+
+  <path d="M2635 495 H2670" class="arrow"/>
+
+  <!-- final output -->
+  <g>
+    <rect x="2680" y="320" width="245" height="350" rx="22" fill="#ecfdf5" stroke="#16a34a" class="box"/>
+    <text x="2802" y="366" text-anchor="middle" class="head">Single 100-query</text>
+    <text x="2802" y="402" text-anchor="middle" class="head">Prediction Set</text>
+    <rect x="2720" y="438" width="165" height="125" rx="10" fill="url(#hdrGradient)" stroke="#15803d" stroke-width="2"/>
+    <rect x="2742" y="479" width="32" height="62" fill="none" stroke="#f472b6" stroke-width="5"/>
+    <rect x="2787" y="494" width="57" height="38" fill="none" stroke="#38bdf8" stroke-width="5"/>
+    <rect x="2851" y="468" width="27" height="70" fill="none" stroke="#4ade80" stroke-width="5"/>
+    <text x="2802" y="604" text-anchor="middle" class="body">No cross-exposure NMS</text>
+    <text x="2802" y="640" text-anchor="middle" class="tiny">one class + box per query</text>
+  </g>
+
+  <!-- TRAINING LANE -->
+  <rect x="35" y="885" width="2930" height="525" rx="28" fill="#faf5ff" stroke="#c084fc" stroke-width="3" stroke-dasharray="15 10"/>
+  <rect x="35" y="885" width="260" height="48" rx="22" fill="#7e22ce"/>
+  <text x="165" y="917" text-anchor="middle" class="whitehead">TRAINING ONLY</text>
+
+  <!-- GT -->
+  <g>
+    <rect x="75" y="1020" width="250" height="245" rx="20" fill="#ffffff" stroke="#9333ea" stroke-width="3"/>
+    <text x="200" y="1063" text-anchor="middle" class="head">Ground-Truth</text>
+    <text x="200" y="1097" text-anchor="middle" class="head">Boxes + Labels</text>
+    <rect x="118" y="1130" width="165" height="94" rx="8" fill="url(#hdrGradient)" stroke="#7e22ce" stroke-width="2"/>
+    <rect x="135" y="1161" width="27" height="48" fill="none" stroke="#f472b6" stroke-width="4"/>
+    <rect x="177" y="1172" width="55" height="34" fill="none" stroke="#38bdf8" stroke-width="4"/>
+    <rect x="244" y="1153" width="26" height="55" fill="none" stroke="#4ade80" stroke-width="4"/>
+    <text x="200" y="1250" text-anchor="middle" class="tiny">ordinary COCO annotations</text>
+  </g>
+
+  <!-- Ground truth supplies matching targets directly to utility construction. -->
+  <path d="M325 1060 V968 H1075 V1018" class="train-arrow"/>
+  <rect x="580" y="947" width="235" height="38" rx="9" fill="#faf5ff" stroke="#9333ea" stroke-width="2"/>
+  <text x="697" y="974" text-anchor="middle" class="tiny" fill="#7e22ce">matching targets</text>
+
+  <!-- teacher exposures -->
+  <g>
+    <rect x="385" y="1020" width="300" height="245" rx="20" fill="#ecfdf5" stroke="#16a34a" stroke-width="3"/>
+    <text x="535" y="1063" text-anchor="middle" class="head">Same 15 Fixed</text>
+    <text x="535" y="1097" text-anchor="middle" class="head">Exposures</text>
+    <rect x="430" y="1130" width="70" height="86" rx="7" fill="url(#exposureDark)" stroke="#15803d" stroke-width="2"/>
+    <rect x="500" y="1130" width="70" height="86" rx="7" fill="url(#exposureMid)" stroke="#15803d" stroke-width="2"/>
+    <rect x="570" y="1130" width="70" height="86" rx="7" fill="url(#exposureBright)" stroke="#15803d" stroke-width="2"/>
+    <text x="535" y="1248" text-anchor="middle" class="mathsmall">s = 0 … 14</text>
+  </g>
+
+  <path d="M685 1142 H735" class="train-arrow"/>
+
+  <!-- teacher -->
+  <g>
+    <rect x="745" y="1020" width="270" height="245" rx="20" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+    <text x="880" y="1063" text-anchor="middle" class="head">Untouched Frozen</text>
+    <text x="880" y="1097" text-anchor="middle" class="head">DETR Teacher</text>
+    <text x="880" y="1151" text-anchor="middle" font-family="DejaVu Sans" font-size="43" fill="#2563eb">❄  🔒</text>
+    <text x="880" y="1200" text-anchor="middle" class="small">evaluates every object</text>
+    <text x="880" y="1232" text-anchor="middle" class="small">at every exposure</text>
+  </g>
+
+  <path d="M1015 1142 H1065" class="train-arrow"/>
+
+  <!-- utility -->
+  <g>
+    <rect x="1075" y="990" width="540" height="305" rx="20" fill="#ffffff" stroke="#9333ea" stroke-width="3"/>
+    <text x="1345" y="1035" text-anchor="middle" class="head">Per-object Exposure Utility</text>
+    <text x="1345" y="1082" text-anchor="middle" class="mathsmall">U<tspan baseline-shift="sub" font-size="14">i,s</tspan> = log P(c<tspan baseline-shift="sub" font-size="14">i</tspan>) − 5 L1(box) − 2(1 − GIoU)</text>
+    <text x="1110" y="1140" class="small">object i</text>
+    <g transform="translate(1210,1112)">
+      <rect x="0" y="0" width="25" height="25" fill="#ede9fe"/><rect x="29" y="0" width="25" height="25" fill="#c4b5fd"/><rect x="58" y="0" width="25" height="25" fill="#8b5cf6"/><rect x="87" y="0" width="25" height="25" fill="#ddd6fe"/><rect x="116" y="0" width="25" height="25" fill="#f5f3ff"/><rect x="145" y="0" width="25" height="25" fill="#f5f3ff"/><rect x="174" y="0" width="25" height="25" fill="#ede9fe"/><rect x="203" y="0" width="25" height="25" fill="#c4b5fd"/><rect x="232" y="0" width="25" height="25" fill="#7c3aed"/><rect x="261" y="0" width="25" height="25" fill="#ddd6fe"/><rect x="290" y="0" width="25" height="25" fill="#ede9fe"/><rect x="319" y="0" width="25" height="25" fill="#f5f3ff"/><rect x="348" y="0" width="25" height="25" fill="#f5f3ff"/><rect x="377" y="0" width="25" height="25" fill="#ede9fe"/><rect x="406" y="0" width="25" height="25" fill="#ddd6fe"/>
+      <rect x="0" y="34" width="25" height="25" fill="#f5f3ff"/><rect x="29" y="34" width="25" height="25" fill="#ede9fe"/><rect x="58" y="34" width="25" height="25" fill="#ddd6fe"/><rect x="87" y="34" width="25" height="25" fill="#c4b5fd"/><rect x="116" y="34" width="25" height="25" fill="#8b5cf6"/><rect x="145" y="34" width="25" height="25" fill="#7c3aed"/><rect x="174" y="34" width="25" height="25" fill="#c4b5fd"/><rect x="203" y="34" width="25" height="25" fill="#ede9fe"/><rect x="232" y="34" width="25" height="25" fill="#f5f3ff"/><rect x="261" y="34" width="25" height="25" fill="#f5f3ff"/><rect x="290" y="34" width="25" height="25" fill="#ede9fe"/><rect x="319" y="34" width="25" height="25" fill="#ddd6fe"/><rect x="348" y="34" width="25" height="25" fill="#ede9fe"/><rect x="377" y="34" width="25" height="25" fill="#f5f3ff"/><rect x="406" y="34" width="25" height="25" fill="#f5f3ff"/>
+      <rect x="0" y="68" width="25" height="25" fill="#ede9fe"/><rect x="29" y="68" width="25" height="25" fill="#f5f3ff"/><rect x="58" y="68" width="25" height="25" fill="#f5f3ff"/><rect x="87" y="68" width="25" height="25" fill="#ede9fe"/><rect x="116" y="68" width="25" height="25" fill="#ddd6fe"/><rect x="145" y="68" width="25" height="25" fill="#c4b5fd"/><rect x="174" y="68" width="25" height="25" fill="#8b5cf6"/><rect x="203" y="68" width="25" height="25" fill="#7c3aed"/><rect x="232" y="68" width="25" height="25" fill="#c4b5fd"/><rect x="261" y="68" width="25" height="25" fill="#ede9fe"/><rect x="290" y="68" width="25" height="25" fill="#f5f3ff"/><rect x="319" y="68" width="25" height="25" fill="#f5f3ff"/><rect x="348" y="68" width="25" height="25" fill="#ede9fe"/><rect x="377" y="68" width="25" height="25" fill="#ddd6fe"/><rect x="406" y="68" width="25" height="25" fill="#f5f3ff"/>
+    </g>
+    <text x="1345" y="1237" text-anchor="middle" class="tiny">one 15-exposure utility distribution</text>
+    <text x="1345" y="1262" text-anchor="middle" class="tiny">for every labeled object</text>
+  </g>
+
+  <path d="M1615 1142 H1655" class="train-arrow"/>
+
+  <!-- soft targets -->
+  <g>
+    <rect x="1665" y="1020" width="405" height="245" rx="20" fill="#ffffff" stroke="#9333ea" stroke-width="3"/>
+    <text x="1867" y="1063" text-anchor="middle" class="head">Soft Routing Target</text>
+    <text x="1867" y="1108" text-anchor="middle" class="mathsmall">T<tspan baseline-shift="sub" font-size="14">i</tspan> = softmax(U<tspan baseline-shift="sub" font-size="14">i</tspan> / T<tspan baseline-shift="sub" font-size="14">teacher</tspan>)</text>
+    <text x="1867" y="1160" text-anchor="middle" class="small">entropy-based confidence</text>
+    <text x="1867" y="1197" text-anchor="middle" class="mathsmall">C<tspan baseline-shift="sub" font-size="14">i</tspan> = 1 − H(T<tspan baseline-shift="sub" font-size="14">i</tspan>)</text>
+    <text x="1867" y="1230" text-anchor="middle" class="tiny">ambiguous targets are</text>
+    <text x="1867" y="1252" text-anchor="middle" class="tiny">down-weighted</text>
+  </g>
+
+  <!-- teacher loss to router -->
+  <path d="M1867 1020 V940 H2055 V476" class="train-arrow"/>
+  <rect x="1880" y="901" width="260" height="42" rx="10" fill="#faf5ff" stroke="#9333ea" stroke-width="2"/>
+  <text x="2010" y="930" text-anchor="middle" class="small" fill="#7e22ce">teacher routing loss</text>
+
+  <!-- detection loss -->
+  <path d="M2802 670 V945 H2138 V520" class="train-arrow"/>
+  <rect x="2455" y="910" width="270" height="42" rx="10" fill="#faf5ff" stroke="#9333ea" stroke-width="2"/>
+  <text x="2590" y="939" text-anchor="middle" class="small" fill="#7e22ce">DETR detection loss</text>
+
+  <!-- inference-only note -->
+  <g>
+    <rect x="2170" y="1070" width="700" height="155" rx="20" fill="#f3e8ff" stroke="#9333ea" stroke-width="3"/>
+    <text x="2520" y="1125" text-anchor="middle" class="head" fill="#6b21a8">Teacher and labels are absent at inference</text>
+    <text x="2520" y="1165" text-anchor="middle" class="small">Test-time input is only the HDR image.</text>
+    <text x="2520" y="1197" text-anchor="middle" class="small">The router directly predicts per-query routes.</text>
+  </g>
+
+  <!-- footer -->
+  <text x="1500" y="1433" text-anchor="middle" class="tiny">Frozen DETR weights remain unchanged; only six layers of routing projections and the stop encoder are trainable.</text>
+</svg>

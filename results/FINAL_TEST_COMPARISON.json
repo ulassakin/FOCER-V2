@@ -1,0 +1,85 @@
+{
+  "protocol": "hdr4rtt_source_temporal_guard_v1",
+  "test_images": 150,
+  "selected_epochs": 11,
+  "paper_fixed": {
+    "variant": "fixed",
+    "images": 150,
+    "dataset_mode": "ours",
+    "branch_count": 15,
+    "fixed_gains": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      8192,
+      16384
+    ],
+    "mean_AP_percent": 41.464882234233144,
+    "AP_percent_by_category": {
+      "1": 43.08660786415545,
+      "2": 33.31591402471411,
+      "3": 49.39433009998477,
+      "8": 40.06267694807825
+    },
+    "detector_checkpoint": "/content/HDR4RTT_801010_assets/weights/detr-r50-e632da11.pth",
+    "detector_fingerprint": "2aa52d8df6fe3e3e7c890297de3f9038f9af18365f29753c7d2aa80aa56112b6",
+    "hdr_scale": 255.0,
+    "source_scales": {},
+    "mat_key": "rgb_dem",
+    "nms_iou": 0.5,
+    "evaluation_renderer": "paper_numpy_opencv",
+    "short_side": 800,
+    "max_side": 1333
+  },
+  "focer_v2": {
+    "architecture": "focer_v2_frozen_detr_teacher_guided_query_routing",
+    "images": 150,
+    "fixed_stops": [
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0,
+      9.0,
+      10.0,
+      11.0,
+      12.0,
+      13.0,
+      14.0
+    ],
+    "AP_percent_by_category": {
+      "1": 52.44011303761287,
+      "2": 36.90489471482359,
+      "3": 52.72018976386976,
+      "8": 58.265346534653474
+    },
+    "skipped_categories_without_ground_truth": [],
+    "mean_AP_percent": 50.082636012739925,
+    "detections": 15000,
+    "routing_records": 3478,
+    "detector_fingerprint": "2aa52d8df6fe3e3e7c890297de3f9038f9af18365f29753c7d2aa80aa56112b6",
+    "nms": false
+  },
+  "focer_minus_paper_AP_points_by_category": {
+    "1": 9.353505173457421,
+    "2": 3.58898069010948,
+    "3": 3.325859663884991,
+    "8": 18.202669586575226
+  },
+  "focer_minus_paper_mean_AP_points": 8.617753778506781,
+  "interpretation": "positive delta means FOCER-v2 is better"
+}

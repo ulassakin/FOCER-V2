@@ -1,0 +1,7 @@
+{
+  "selected_epochs": 11,
+  "maximum_selection_epochs": 20,
+  "selection_criterion": "maximum validation pooled paper-category COCO mAP",
+  "selection_checkpoint_sha256": "cc578176b1e7dee3bddb52cfa2a1cb9465a2b74e1cf8612a5a8254f5518fff88",
+  "test_images_accessed": false
+}

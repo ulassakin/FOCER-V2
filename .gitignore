@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# IDE / operating system
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local datasets and generated splits
+data/
+
+# Model weights, caches, and large artifacts
+weights/
+teacher_cache/
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.exr
+*.hdr
+*.mat
+
+# Experiment outputs
+runs/
+outputs/
+focer_output/
+*.log
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Temporary files
+*.tmp
+*~

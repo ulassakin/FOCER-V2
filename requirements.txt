@@ -1,0 +1,8 @@
+# Install a matching PyTorch / torchvision pair first from pytorch.org.
+numpy>=1.23
+scipy>=1.9
+opencv-python>=4.6
+pycocotools>=2.0.7
+Pillow>=9
+packaging>=21
+
